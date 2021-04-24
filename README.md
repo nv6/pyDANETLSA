@@ -86,7 +86,7 @@ import pyDANETLSA
 print("Protocol support list:", pyDANETLSA.DANETLS_protocols)
 
 d = pyDANETLSA.danetlsa(fqdn='smtp.koeroo.net.', port=25,  protocol=pyDANETLSA.DANETLSA_SMTP)
-d.connect()
+d.engage()
 print("TLSA RR with FQDN", d.tlsa_rr_fqdn())
 ```
 
