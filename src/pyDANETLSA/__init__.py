@@ -83,6 +83,17 @@ class danetlsa(object):
                 raise IOError("file '{}' is not a file.".format(self.certfile))
 
 
+    def process_pubkey_hex(self):
+        pubkey = crypto.dump_publickey(crypto.FILETYPE_ASN1, self.x509.get_pubkey())
+        m = hashlib.sha256()
+        m.update(pubkey)
+        m.digest()
+        self.pubkey_hex = m.hexdigest()
+        return self.pubkey_hex
+
+    def pubkey_hex(self):
+        return self.pubkey_hex
+
     def subject_dn(self):
         """
         Output in OpenSSL format
@@ -92,14 +103,6 @@ class danetlsa(object):
             s = s + '/' + name.decode("utf-8") + '=' + value.decode("utf-8")
 
         return s
-
-    def process_pubkey_hex(self):
-        pubkey = crypto.dump_publickey(crypto.FILETYPE_ASN1, self.x509.get_pubkey())
-        m = hashlib.sha256()
-        m.update(pubkey)
-        m.digest()
-        self.pubkey_hex = m.hexdigest()
-        return self.pubkey_hex
 
     def tlsa_rdata_3_1_1(self):
         return "3 1 1 " + self.pubkey_hex
@@ -163,4 +166,7 @@ class danetlsa(object):
 
         ### Parsing into X.509 object
         self.x509 = crypto.load_certificate(crypto.FILETYPE_ASN1, self.cert_der)
+
+        ### Extrct public key and store the HEX value for it, conforming 3 1 1.
+        self.process_pubkey_hex()
 

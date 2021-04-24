@@ -6,26 +6,29 @@ print("Protocol support list:", pyDANETLSA.DANETLS_protocols)
 
 
 def execute_test(fqdn=None, port=None, domain=None, protocol=None, certfile=None):
-    print("=== Input:")
-    print("fqdn:", fqdn)
-    print("port:", port)
-    print("domain:", domain)
-    print("protocol: {}({})".format(pyDANETLSA.DANETLS_protocol_to_str(protocol), protocol))
+    print("===")
+    print("- input:")
+    print("t fqdn           :", fqdn)
+    print("t port           :", port)
+    print("t domain         :", domain)
+    print("t protocol       : {}({})".format(pyDANETLSA.DANETLS_protocol_to_str(protocol), protocol))
 
     print("- run:")
     d = pyDANETLSA.danetlsa(fqdn=fqdn, port=port, protocol=protocol, certfile=certfile)
 
-    print("FQDN:", d.fqdn)
-    print("Host:", d.host)
-    print("Domain:", d.domain)
-
+    print("i FQDN           :", d.fqdn)
+    print("i Host           :", d.host)
+    print("i Domain         :", d.domain)
     d.connect()
-    print("Subject DN:", d.subject_dn())
-    print("Pub key hex:", d.process_pubkey_hex())
+
+    print("- output:")
+    print("Subject DN       :", d.subject_dn())
+    print("Pub key hex      :", d.process_pubkey_hex())
     print("TLSA RR name/host:", d.tlsa_rr_name_host())
-    print("TLSA rdata 3 1 1:", d.tlsa_rdata_3_1_1())
-    print("TLSA RR:", d.tlsa_rr())
-    print("TLSA RR with FQDN", d.tlsa_rr_fqdn())
+    print("TLSA RR name/host:", d.tlsa_rr_name_fqdn())
+    print("TLSA rdata 3 1 1 :", d.tlsa_rdata_3_1_1())
+    print("TLSA RR          :", d.tlsa_rr())
+    print("TLSA RR with FQDN:", d.tlsa_rr_fqdn())
     print("-- done.")
 
 
