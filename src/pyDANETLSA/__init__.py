@@ -20,6 +20,16 @@ DANETLSA_DER  = 60
 DANETLS_protocols = [DANETLSA_IMAP, DANETLSA_POP3, DANETLSA_SMTP,
                      DANETLSA_TLS,  DANETLSA_PEM,  DANETLSA_DER]
 
+def DANETLS_protocol_to_str(protocol):
+    if protocol not in DANETLS_protocols:
+        raise ValueError("Unknown protocol/method set")
+
+    if   protocol == DANETLSA_IMAP: return "IMAP"
+    elif protocol == DANETLSA_POP3: return "POP3"
+    elif protocol == DANETLSA_SMTP: return "SMTP"
+    elif protocol == DANETLSA_TLS : return "TLS"
+    elif protocol == DANETLSA_PEM : return "PEM"
+    elif protocol == DANETLSA_DER : return "DER"
 
 class danetlsa(object):
 
@@ -146,7 +156,7 @@ class danetlsa(object):
             self.cert_der = ssl.PEM_cert_to_DER_cert(self.cert_pem)
 
         elif self.protocol == DANETLSA_DER:
-            f = open(self.certfile, "r")
+            f = open(self.certfile, "rb")
             self.cert_der = f.read()
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
 

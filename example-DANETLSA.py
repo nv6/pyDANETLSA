@@ -6,7 +6,15 @@ print("Protocol support list:", pyDANETLSA.DANETLS_protocols)
 
 
 def execute_test(fqdn=None, port=None, domain=None, protocol=None, certfile=None):
+    print("=== Input:")
+    print("fqdn:", fqdn)
+    print("port:", port)
+    print("domain:", domain)
+    print("protocol: {}({})".format(pyDANETLSA.DANETLS_protocol_to_str(protocol), protocol))
+
+    print("- run:")
     d = pyDANETLSA.danetlsa(fqdn=fqdn, port=port, protocol=protocol, certfile=certfile)
+
     print("FQDN:", d.fqdn)
     print("Host:", d.host)
     print("Domain:", d.domain)
@@ -18,6 +26,7 @@ def execute_test(fqdn=None, port=None, domain=None, protocol=None, certfile=None
     print("TLSA rdata 3 1 1:", d.tlsa_rdata_3_1_1())
     print("TLSA RR:", d.tlsa_rr())
     print("TLSA RR with FQDN", d.tlsa_rr_fqdn())
+    print("-- done.")
 
 
 try:
@@ -29,6 +38,10 @@ except Exception as e:
 
 execute_test(fqdn='foobar.koeroo.net.', port=777, protocol=pyDANETLSA.DANETLSA_PEM,
              certfile="dummy.pem")
+
+execute_test(fqdn='foobar.koeroo.net.', port=777, protocol=pyDANETLSA.DANETLSA_DER,
+             certfile="dummy.der")
+
 
 execute_test(fqdn='smtp.koeroo.net.',   port=25,  protocol=pyDANETLSA.DANETLSA_SMTP)
 execute_test(fqdn='smtp.koeroo.net.',   port=143, protocol=pyDANETLSA.DANETLSA_IMAP)
