@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import os
 import ssl
 import imaplib
 import poplib
@@ -13,8 +14,11 @@ DANETLSA_IMAP = 10
 DANETLSA_POP3 = 20
 DANETLSA_SMTP = 30
 DANETLSA_TLS  = 40
+DANETLSA_PEM  = 50
+DANETLSA_DER  = 60
 
-DANETLS_protocols = [DANETLSA_IMAP, DANETLSA_POP3, DANETLSA_SMTP, DANETLSA_TLS]
+DANETLS_protocols = [DANETLSA_IMAP, DANETLSA_POP3, DANETLSA_SMTP,
+                     DANETLSA_TLS,  DANETLSA_PEM,  DANETLSA_DER]
 
 
 class danetlsa(object):
@@ -23,11 +27,13 @@ class danetlsa(object):
     IMAP: StartTLS for IMAP
     POP3: StartTLS for POP3
     SMTP: StartTLS for SMTP
-    TLS: Plain TLS protocol, any application protocol
+    TLS : Plain TLS protocol, any application protocol
+    PEM : Input is a X.509 certificate in PEM format
+    DER : Input is a X.509 certificate in DER format
     """
-    def __init__(self, fqdn=None, port=None, domain=None, protocol=DANETLSA_TLS):
+    def __init__(self, fqdn=None, port=None, domain=None, protocol=DANETLSA_TLS, certfile=None):
         if protocol not in DANETLS_protocols:
-            raise ValueError("Unknown protocol set")
+            raise ValueError("Unknown protocol/method set")
 
         if fqdn is None:
             raise ValueError("No fqdn provided")
@@ -35,10 +41,12 @@ class danetlsa(object):
         if port is None:
             raise ValueError("No port provided")
 
+        # Fill class with values
         self.fqdn = fqdn
         self.port = port
         self.protocol = protocol
         self.domain = domain
+        self.certfile = certfile
 
         # Normalization
         if self.fqdn[-1] == '.':
@@ -56,6 +64,13 @@ class danetlsa(object):
                 self.domain = self.domain[:-1]
 
             self.host = ".".join(self.fqdn.split('.')[:-len(self.domain.split('.'))])
+
+        # Check if the file exists
+        if self.certfile is not None:
+            if not os.path.exists(self.certfile):
+                raise IOError("file '{}' does not exist.".format(self.certfile))
+            if not os.path.isfile(self.certfile):
+                raise IOError("file '{}' is not a file.".format(self.certfile))
 
 
     def subject_dn(self):
@@ -100,6 +115,9 @@ class danetlsa(object):
                self.tlsa_rdata_3_1_1()
 
     def connect(self):
+        self.engage()
+
+    def engage(self):
         if self.protocol == DANETLSA_TLS:
             self.cert_pem = ssl.get_server_certificate((self.fqdn, self.port))
             self.cert_der = ssl.PEM_cert_to_DER_cert(self.cert_pem)
@@ -121,6 +139,17 @@ class danetlsa(object):
             pop.stls()
             self.cert_der = pop.sock.getpeercert(binary_form=True)
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
+
+        elif self.protocol == DANETLSA_PEM:
+            f = open(self.certfile, "r")
+            self.cert_pem = f.read()
+            self.cert_der = ssl.PEM_cert_to_DER_cert(self.cert_pem)
+
+        elif self.protocol == DANETLSA_DER:
+            f = open(self.certfile, "r")
+            self.cert_der = f.read()
+            self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
+
 
         ### Parsing into X.509 object
         self.x509 = crypto.load_certificate(crypto.FILETYPE_ASN1, self.cert_der)
