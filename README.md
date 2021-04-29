@@ -10,7 +10,8 @@ Start a new instance of pyDANETLSA and initialize it with the following named at
 
 * fqdn: Fully Qualified Domain Name which sets the full name of a host, e.g. smtp.koeroo.net. From this value the domain and host part is extracted. However, the algorithm expects a zone of two components, being the TLD and the zone name. If this is either three or one for gTLDs the calculation is borked. Use the ***domain*** attribute to force the calculation to become relative to the provided domain instead of guessing the zone structure.
 * port: The TCP or UDP port number for with the DANE TLSA record is to be generated.
-* protocol: Selects the probe method/read method. Choices are fixed to:
+* tlsa\_protocol: Select the output TLSA protocol. Options are limited to 'tcp', 'udp' and 'sctp'. Default is 'tcp'.
+* probe\_protocol: Selects the probe method/read method. Choices are fixed to:
 
    * ***DANETLSA_IMAP***: Probes IMAP with StartTLS on the provided port.
    * ***DANETLSA_POP3***: Probes POP3 with StartTLS on the provided port.
