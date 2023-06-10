@@ -10,6 +10,7 @@ import OpenSSL.crypto as crypto
 
 from libs import constants
 from libs import funcs
+from libs import dnstools
 
 
 def get_supported_protocols():
@@ -76,6 +77,33 @@ class danetlsa(object):
                 raise IOError("file '{}' does not exist.".format(self.certfile))
             if not os.path.isfile(self.certfile):
                 raise IOError("file '{}' is not a file.".format(self.certfile))
+
+
+    def dns_tlsa(self):
+        # Parse and construct config for dnspython
+        dns_config = dnstools.DnsPythonConfig("192.168.1.2")
+        status, answers = dnstools.dns_query(self.tlsa_rr_name_fqdn(),
+                                    'TLSA', 
+                                    dns_config,
+                                    False)
+        if status != dnstools.DNSERRORS.NOERROR:
+            return None
+
+        return sorted([str(rr) for rr in answers])
+
+    def match_cert_with_tlsa_rr(self):
+        dns_tlsa_list = self.dns_tlsa()
+        x509_tlsa_3_1_1 = self.tlsa_rdata_3_1_1()
+
+        if dns_tlsa_list is None:
+            return False
+
+        for rr in dns_tlsa_list:
+            if x509_tlsa_3_1_1 == rr:
+                return True
+        else:
+            return False
+
 
     def pubkey_hex(self):
         return funcs.x509_to_pubkey_key(self.x509)
