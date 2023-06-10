@@ -48,11 +48,17 @@ try:
 except Exception as e:
     print(e)
 
-execute_test(fqdn='foobar.koeroo.net.', port=777, probe_protocol=constants.DANETLSA_PEM,
-             certfile="dummy.pem")
+try:
+    execute_test(fqdn='foobar.koeroo.net.', port=777, probe_protocol=constants.DANETLSA_PEM,
+                certfile="testcert/dummy.pem")
+except Exception as e:
+    print(e)
 
-execute_test(fqdn='foobar.koeroo.net.', port=777, probe_protocol=constants.DANETLSA_DER,
-             certfile="dummy.der")
+try:
+    execute_test(fqdn='foobar.koeroo.net.', port=777, probe_protocol=constants.DANETLSA_DER,
+                certfile="testcert/dummy.der")
+except Exception as e:
+    print(e)
 
 
 execute_test(fqdn='smtp.koeroo.net.',   port=25,  probe_protocol=constants.DANETLSA_SMTP)
