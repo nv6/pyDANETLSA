@@ -61,7 +61,8 @@ except Exception as e:
     print(e)
 
 
-execute_test(fqdn='smtp.koeroo.net.',   port=25,  probe_protocol=constants.DANETLSA_SMTP)
+execute_test(fqdn='smtp.koeroo.net',    port=25,  probe_protocol=constants.DANETLSA_SMTP)
+execute_test(fqdn='mx.ncsc.nl',         port=25,  probe_protocol=constants.DANETLSA_SMTP)
 execute_test(fqdn='mail.koeroo.net.',   port=143, probe_protocol=constants.DANETLSA_IMAP)
 execute_test(fqdn='mail.koeroo.net.',   port=465, probe_protocol=constants.DANETLSA_TLS)
 execute_test(fqdn='pop.kpnmail.nl',     port=110, probe_protocol=constants.DANETLSA_POP3)
