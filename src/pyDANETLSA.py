@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import sys
 import os
 import ssl
 import ftplib
@@ -8,7 +7,6 @@ import imaplib
 import poplib
 import smtplib
 import OpenSSL.crypto as crypto
-import hashlib
 
 from libs import constants
 from libs import funcs
@@ -79,29 +77,14 @@ class danetlsa(object):
             if not os.path.isfile(self.certfile):
                 raise IOError("file '{}' is not a file.".format(self.certfile))
 
-    def process_pubkey_hex(self):
-        pubkey = crypto.dump_publickey(crypto.FILETYPE_ASN1, self.x509.get_pubkey())
-        m = hashlib.sha256()
-        m.update(pubkey)
-        m.digest()
-        self.pubkey_hex = m.hexdigest()
-        return self.pubkey_hex
-
     def pubkey_hex(self):
-        return self.pubkey_hex
+        return funcs.x509_to_pubkey_key(self.x509)
 
     def subject_dn(self):
-        """
-        Output in OpenSSL format
-        """
-        s = ""
-        for name, value in self.x509.get_subject().get_components():
-            s = s + '/' + name.decode("utf-8") + '=' + value.decode("utf-8")
-
-        return s
+        return funcs.x509_to_subject_dn(self.x509)
 
     def tlsa_rdata_3_1_1(self):
-        return "3 1 1 " + self.pubkey_hex
+        return "3 1 1 " + self.pubkey_hex()
 
     def tlsa_rr_name_host(self):
         return "_" + str(self.port) + "." + \
@@ -124,9 +107,6 @@ class danetlsa(object):
                self.tlsa_rdata_3_1_1()
 
     def connect(self):
-        self.engage()
-
-    def engage(self):
         if self.probe_protocol == constants.DANETLSA_TLS:
             self.cert_pem = ssl.get_server_certificate((self.fqdn, self.port))
             self.cert_der = ssl.PEM_cert_to_DER_cert(self.cert_pem)
@@ -165,10 +145,5 @@ class danetlsa(object):
             self.cert_der = ftps.sock.getpeercert(binary_form=True)
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
 
-
         ### Parsing into X.509 object
         self.x509 = crypto.load_certificate(crypto.FILETYPE_ASN1, self.cert_der)
-
-        ### Extrct public key and store the HEX value for it, conforming 3 1 1.
-        self.process_pubkey_hex()
-

@@ -28,7 +28,7 @@ def execute_test(fqdn=None, port=None, domain=None, tlsa_protocol='tcp', probe_p
 
     print("- output:")
     print("Subject DN       :", d.subject_dn())
-    print("Pub key hex      :", d.process_pubkey_hex())
+    print("Pub key hex      :", d.pubkey_hex())
     print("TLSA RR name/host:", d.tlsa_rr_name_host())
     print("TLSA RR name/host:", d.tlsa_rr_name_fqdn())
     print("TLSA rdata 3 1 1 :", d.tlsa_rdata_3_1_1())
