@@ -15,7 +15,7 @@ from libs import dnstools
 from enum import Enum
 
 
-class DANETLSAconst(Enum):
+class DANETLSAprotocols(Enum):
     DANETLSA_IMAP = 10
     DANETLSA_POP3 = 20
     DANETLSA_SMTP = 30
@@ -26,23 +26,23 @@ class DANETLSAconst(Enum):
 
 
 def DANETLS_protocol_to_str(protocol):
-    if protocol not in DANETLSAconst:
+    if protocol not in DANETLSAprotocols:
         raise ValueError("Unknown protocol/method set")
 
-    if   protocol == DANETLSAconst.DANETLSA_IMAP: return "IMAP"
-    elif protocol == DANETLSAconst.DANETLSA_POP3: return "POP3"
-    elif protocol == DANETLSAconst.DANETLSA_SMTP: return "SMTP"
-    elif protocol == DANETLSAconst.DANETLSA_TLS : return "TLS"
-    elif protocol == DANETLSAconst.DANETLSA_PEM : return "PEM"
-    elif protocol == DANETLSAconst.DANETLSA_DER : return "DER"
-    elif protocol == DANETLSAconst.DANETLSA_FTP : return "FTP"
+    if   protocol == DANETLSAprotocols.DANETLSA_IMAP: return "IMAP"
+    elif protocol == DANETLSAprotocols.DANETLSA_POP3: return "POP3"
+    elif protocol == DANETLSAprotocols.DANETLSA_SMTP: return "SMTP"
+    elif protocol == DANETLSAprotocols.DANETLSA_TLS : return "TLS"
+    elif protocol == DANETLSAprotocols.DANETLSA_PEM : return "PEM"
+    elif protocol == DANETLSAprotocols.DANETLSA_DER : return "DER"
+    elif protocol == DANETLSAprotocols.DANETLSA_FTP : return "FTP"
 
 
 def DANETLSA_get_supported_protocols():
-    for i in DANETLSAconst:
+    for i in DANETLSAprotocols:
         print(DANETLS_protocol_to_str(i))
 
-    return [DANETLS_protocol_to_str(i) for i in DANETLSAconst]
+    return [DANETLS_protocol_to_str(i) for i in DANETLSAprotocols]
 
 
 class DANETLSA(object):
@@ -57,12 +57,12 @@ class DANETLSA(object):
     FTP : StartTLS for FTP
     """
     def __init__(self, fqdn=None, port=None, domain=None,
-                       tlsa_protocol='tcp', probe_protocol=DANETLSAconst.DANETLSA_TLS,
+                       tlsa_protocol='tcp', probe_protocol=DANETLSAprotocols.DANETLSA_TLS,
                        certfile=None):
         if tlsa_protocol.lower() not in ['tcp', 'udp', 'sctp']:
             raise ValueError("Unknown protocol/method set for TLSA output record.")
 
-        if probe_protocol not in DANETLSAconst:
+        if probe_protocol not in DANETLSAprotocols:
             raise ValueError("Unknown protocol/method set for reading/probing.")
 
         if fqdn is None:
@@ -161,39 +161,39 @@ class DANETLSA(object):
                self.tlsa_rdata_3_1_1()
 
     def connect(self):
-        if self.probe_protocol == DANETLSAconst.DANETLSA_TLS:
+        if self.probe_protocol == DANETLSAprotocols.DANETLSA_TLS:
             self.cert_pem = ssl.get_server_certificate((self.fqdn, self.port))
             self.cert_der = ssl.PEM_cert_to_DER_cert(self.cert_pem)
 
-        elif self.probe_protocol == DANETLSAconst.DANETLSA_SMTP:
+        elif self.probe_protocol == DANETLSAprotocols.DANETLSA_SMTP:
             smtp = smtplib.SMTP(self.fqdn, port=self.port)
             smtp.starttls()
             self.cert_der = smtp.sock.getpeercert(binary_form=True)
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
 
-        elif self.probe_protocol == DANETLSAconst.DANETLSA_IMAP:
+        elif self.probe_protocol == DANETLSAprotocols.DANETLSA_IMAP:
             imap = imaplib.IMAP4(self.fqdn, self.port)
             imap.starttls()
             self.cert_der = imap.sock.getpeercert(binary_form=True)
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
 
-        elif self.probe_protocol == DANETLSAconst.DANETLSA_POP3:
+        elif self.probe_protocol == DANETLSAprotocols.DANETLSA_POP3:
             pop = poplib.POP3(self.fqdn, self.port)
             pop.stls()
             self.cert_der = pop.sock.getpeercert(binary_form=True)
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
 
-        elif self.probe_protocol == DANETLSAconst.DANETLSA_PEM:
+        elif self.probe_protocol == DANETLSAprotocols.DANETLSA_PEM:
             f = open(self.certfile, "r")
             self.cert_pem = f.read()
             self.cert_der = ssl.PEM_cert_to_DER_cert(self.cert_pem)
 
-        elif self.probe_protocol == DANETLSAconst.DANETLSA_DER:
+        elif self.probe_protocol == DANETLSAprotocols.DANETLSA_DER:
             f = open(self.certfile, "rb")
             self.cert_der = f.read()
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
 
-        elif self.probe_protocol == DANETLSAconst.DANETLSA_FTP:
+        elif self.probe_protocol == DANETLSAprotocols.DANETLSA_FTP:
             ftps = ftplib.FTP_TLS(self.fqdn)
             ftps.auth()
             self.cert_der = ftps.sock.getpeercert(binary_form=True)
