@@ -49,9 +49,6 @@ def str_to_DANETLS_protocol(proto: str):
 
 
 def DANETLSA_get_supported_protocols():
-    for i in DANETLSAprotocols:
-        print(DANETLS_protocol_to_str(i))
-
     return [DANETLS_protocol_to_str(i) for i in DANETLSAprotocols]
 
 

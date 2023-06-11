@@ -9,11 +9,10 @@ from pyDANETLSA import DANETLSA_get_supported_protocols, DANETLS_protocol_to_str
 from libs.configuration import parse_config
 
 
-print("Protocol support list:", DANETLSA_get_supported_protocols())
 
-
-def execute_test(fqdn=None, port=None, domain=None, tlsa_protocol='tcp', 
-                 probe_protocol=None, certfile=None):
+def execute_test(fqdn=None, port=25, domain=None, 
+                tlsa_protocol='tcp', 
+                probe_protocol=None, certfile=None):
     print("===")
     print("- input:")
     print("t fqdn           :", fqdn)
@@ -47,27 +46,55 @@ def execute_test(fqdn=None, port=None, domain=None, tlsa_protocol='tcp',
     print("-- done.")
 
 
-
-if __name__ == "__main__":
+def arguments():
     parser = argparse.ArgumentParser(os.path.basename(__file__))
+    parser.add_argument("-v", "--verbose",
+                        dest='verbose',
+                        help="Verbose mode. Default is off",
+                        action="store_true",
+                        default=False)
     parser.add_argument("-f", "--fqdn",
                         dest='fqdn',
                         help="FQDN",
                         default=None,
+                        type=str)
+    parser.add_argument("-t", "--transport",
+                        dest='transport',
+                        help="TCP, UDP or SCTP",
+                        choices=['TCP', 'UDP', 'SCTP'],
+                        default="TCP",
                         type=str)
     parser.add_argument("-p", "--port",
                         dest='port',
                         help="Port number",
                         default=None,
                         type=str)
-    parser.add_argument("-t", "--protocol",
+    parser.add_argument("-l", "--protocol",
                         dest='protocol',
                         help="Protocol",
+                        choices=DANETLSA_get_supported_protocols(),
                         default=None,
                         type=str)
 
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    execute_test(fqdn=args.fqdn,
-                 port=args.port,
-                probe_protocol=str_to_DANETLS_protocol(args.protocol))
+
+if __name__ == "__main__":
+    args = arguments()
+
+    if args.verbose:
+        execute_test(fqdn=args.fqdn,
+                    port=args.port,
+                    tlsa_protocol=args.transport.lower(),
+                    probe_protocol=str_to_DANETLS_protocol(args.protocol))
+
+    else:
+        d = DANETLSA(fqdn=args.fqdn, port=args.port,
+                     tlsa_protocol=args.transport.lower(),
+                     probe_protocol=str_to_DANETLS_protocol(args.protocol))
+        d.connect()
+
+        if d.match_cert_with_tlsa_rr():
+            print("{ \"DANETLS_OK\":true }")
+        else:
+            print("{ \"DANETLS_OK\":false }")
