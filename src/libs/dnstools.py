@@ -62,6 +62,9 @@ def dns_query(fqdn: str, r_type: str,
             resolver.nameservers = dns_config.nameservers
             resolver.nameserver_ports = dns_config.nameservers_port
 
+        resolver.timeout = 30
+        resolver.lifetime = 30
+
         # Query
         answers = resolver.query(fqdn, r_type)
         rrset = [str(rr) for rr in answers]
