@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
-import os
-import argparse
+import sys
 
 from pyDANETLSA import DANETLSAprotocols, DANETLSA
-from pyDANETLSA import DANETLSA_get_supported_protocols, DANETLS_protocol_to_str, str_to_DANETLS_protocol
+from pyDANETLSA import DANETLS_protocol_to_str, str_to_DANETLS_protocol
 
-from libs.configuration import parse_config
+from libs.configuration import arguments, is_startup_clean
 
 
 
@@ -46,41 +45,11 @@ def execute_test(fqdn=None, port=25, domain=None,
     print("-- done.")
 
 
-def arguments():
-    parser = argparse.ArgumentParser(os.path.basename(__file__))
-    parser.add_argument("-v", "--verbose",
-                        dest='verbose',
-                        help="Verbose mode. Default is off",
-                        action="store_true",
-                        default=False)
-    parser.add_argument("-f", "--fqdn",
-                        dest='fqdn',
-                        help="FQDN",
-                        default=None,
-                        type=str)
-    parser.add_argument("-t", "--transport",
-                        dest='transport',
-                        help="TCP, UDP or SCTP",
-                        choices=['TCP', 'UDP', 'SCTP'],
-                        default="TCP",
-                        type=str)
-    parser.add_argument("-p", "--port",
-                        dest='port',
-                        help="Port number",
-                        default=None,
-                        type=str)
-    parser.add_argument("-l", "--protocol",
-                        dest='protocol',
-                        help="Protocol",
-                        choices=DANETLSA_get_supported_protocols(),
-                        default=None,
-                        type=str)
-
-    return parser.parse_args()
-
 
 if __name__ == "__main__":
     args = arguments()
+    if not is_startup_clean(args):
+        sys.exit(1)
 
     if args.verbose:
         execute_test(fqdn=args.fqdn,
@@ -96,5 +65,7 @@ if __name__ == "__main__":
 
         if d.match_cert_with_tlsa_rr():
             print("{ \"DANETLS_OK\":true }")
+            sys.exit(0)
         else:
             print("{ \"DANETLS_OK\":false }")
+            sys.exit(1)

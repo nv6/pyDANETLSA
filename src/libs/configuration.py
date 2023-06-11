@@ -2,37 +2,46 @@
 
 import os
 import argparse
-import configparser
-import errno
+
+from pyDANETLSA import DANETLSA_get_supported_protocols
 
 
-def parse_config_section(ctx, config, section):
-    if section not in config.sections():
-        print(f"Warning: Configuration file does not have a \"{section}\" section")
-        return ctx
+def arguments():
+    parser = argparse.ArgumentParser(os.path.basename(__file__))
+    parser.add_argument("-v", "--verbose",
+                        dest='verbose',
+                        help="Verbose mode. Default is off",
+                        action="store_true",
+                        default=False)
+    parser.add_argument("-f", "--fqdn",
+                        dest='fqdn',
+                        help="FQDN",
+                        default=None,
+                        type=str)
+    parser.add_argument("-t", "--transport",
+                        dest='transport',
+                        help="TCP, UDP or SCTP",
+                        choices=['TCP', 'UDP', 'SCTP'],
+                        default="TCP",
+                        type=str)
+    parser.add_argument("-p", "--port",
+                        dest='port',
+                        help="Port number",
+                        default=None,
+                        type=int)
+    parser.add_argument("-l", "--protocol",
+                        dest='protocol',
+                        help="Protocol",
+                        choices=DANETLSA_get_supported_protocols(),
+                        default=None,
+                        type=str)
 
-    for key in config[section]:
-        if 'args_' + key in ctx and ctx['args_' + key] is not None:
-            ctx[section + "_" + key] = ctx['args_' + key]
-            continue
-        else:
-            ctx[section + "_" + key] = config[section][key]
-
-    return ctx
+    return parser.parse_args()
 
 
-def parse_config(ctx):
-    config = configparser.ConfigParser()
-
+def is_startup_clean(args):
+    if args.fqdn is None:
+        print("Error: no FQDN provided.")
+        return False
     
-
-    if not os.path.isfile(ctx['args_configfile']):
-        raise FileNotFoundError(
-            errno.ENOENT, os.strerror(errno.ENOENT), ctx['args_configfile'])
-
-    config.read(ctx['args_configfile'])
-
-    ctx = parse_config_section(ctx, config, 'generic')
-    ctx = parse_config_section(ctx, config, 'dnsmasq_dhcp')
-
-    return ctx
+    return True
