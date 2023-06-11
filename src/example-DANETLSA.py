@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-from pyDANETLSA import DANETLSAprotocols, DANETLSA, DANETLSA_get_supported_protocols, DANETLS_protocol_to_str
+from pyDANETLSA import DANETLSAprotocols, DANETLSA
+from pyDANETLSA import DANETLSA_get_supported_protocols, DANETLS_protocol_to_str
 
 
 print("Protocol support list:", DANETLSA_get_supported_protocols())

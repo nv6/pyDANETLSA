@@ -5,7 +5,6 @@ import dns.resolver
 import dns.asyncresolver
 
 
-
 class DNSERRORS(Enum):
     NOERROR = 1,
     NXDOMAIN = 2,
@@ -40,11 +39,9 @@ class DnsPythonConfig:
     def __post_init__(self):
         raw_ns_str = self.raw
 
-        if raw_ns_str is None:
-            raise ValueError("No nameservers provided")
-
-        self.nameservers = self.split_raw_str_to_nameservers_list(self.raw) 
-        self.nameservers_port = self.split_raw_str_to_nameserver_port_dict(self.raw)
+        if raw_ns_str is not None:
+            self.nameservers = self.split_raw_str_to_nameservers_list(self.raw) 
+            self.nameservers_port = self.split_raw_str_to_nameserver_port_dict(self.raw)
     
     def fetch_config_tuple(self):
         for nameserver, port in self.nameservers_port.items():
@@ -61,8 +58,9 @@ def dns_query(fqdn: str, r_type: str,
     try:
         resolver = dns.resolver.Resolver()
 
-        resolver.nameservers = dns_config.nameservers
-        resolver.nameserver_ports = dns_config.nameservers_port
+        if dns_config is not None:
+            resolver.nameservers = dns_config.nameservers
+            resolver.nameserver_ports = dns_config.nameservers_port
 
         # Query
         answers = resolver.query(fqdn, r_type)

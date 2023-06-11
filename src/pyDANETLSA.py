@@ -101,14 +101,12 @@ class DANETLSA(object):
             if not os.path.isfile(self.certfile):
                 raise IOError("file '{}' is not a file.".format(self.certfile))
 
-        print("initialized")
-
     def dns_tlsa(self):
         # Parse and construct config for dnspython
-        dns_config = dnstools.DnsPythonConfig("192.168.1.2")
+        dns_config = dnstools.DnsPythonConfig(None)
         status, answers = dnstools.dns_query(self.tlsa_rr_name_fqdn(),
                                     'TLSA', 
-                                    dns_config,
+                                    None,
                                     False)
         if status != dnstools.DNSERRORS.NOERROR:
             return None
