@@ -7,12 +7,10 @@ import imaplib
 import poplib
 import smtplib
 import OpenSSL.crypto as crypto
+from enum import Enum
 
-from libs import constants
 from libs import funcs
 from libs import dnstools
-
-from enum import Enum
 
 
 class DANETLSAprotocols(Enum):
