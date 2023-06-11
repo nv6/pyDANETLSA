@@ -201,3 +201,11 @@ class DANETLSA(object):
 
         ### Parsing into X.509 object
         self.cert = crypto.load_certificate(crypto.FILETYPE_ASN1, self.cert_der)
+
+
+
+### Start up
+if __name__ == "__main__":
+    import tests
+
+    tests.runtest()

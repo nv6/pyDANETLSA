@@ -3,6 +3,8 @@
 from pyDANETLSA import DANETLSAprotocols, DANETLSA
 from pyDANETLSA import DANETLSA_get_supported_protocols, DANETLS_protocol_to_str
 
+from libs.configuration import parse_config
+
 
 print("Protocol support list:", DANETLSA_get_supported_protocols())
 
@@ -42,30 +44,32 @@ def execute_test(fqdn=None, port=None, domain=None, tlsa_protocol='tcp',
     print("-- done.")
 
 
-try:
-    # Expected to fail and raise an exception
-    execute_test(fqdn='foobar.koeroo.net.', port=777, probe_protocol=DANETLSAprotocols.DANETLSA_TLS,
-                 certfile="dont_exists.pem")
-except Exception as e:
-    print(e)
+def runtest():
+    try:
+        # Expected to fail and raise an exception
+        execute_test(fqdn='foobar.koeroo.net.', port=777, probe_protocol=DANETLSAprotocols.DANETLSA_TLS,
+                    certfile="dont_exists.pem")
+    except Exception as e:
+        print(e)
 
-try:
-    execute_test(fqdn='foobar.koeroo.net.', port=777, probe_protocol=DANETLSAprotocols.DANETLSA_PEM,
-                certfile="testcert/dummy.pem")
-except Exception as e:
-    print(e)
+    try:
+        execute_test(fqdn='foobar.koeroo.net.', port=777, probe_protocol=DANETLSAprotocols.DANETLSA_PEM,
+                    certfile="testcert/dummy.pem")
+    except Exception as e:
+        print(e)
 
-try:
-    execute_test(fqdn='foobar.koeroo.net.', port=777, probe_protocol=DANETLSAprotocols.DANETLSA_DER,
-                certfile="testcert/dummy.der")
-except Exception as e:
-    print(e)
+    try:
+        execute_test(fqdn='foobar.koeroo.net.', port=777, probe_protocol=DANETLSAprotocols.DANETLSA_DER,
+                    certfile="testcert/dummy.der")
+    except Exception as e:
+        print(e)
 
 
-execute_test(fqdn='smtp.koeroo.net',    port=25,  probe_protocol=DANETLSAprotocols.DANETLSA_SMTP)
-execute_test(fqdn='mx.ncsc.nl',         port=25,  probe_protocol=DANETLSAprotocols.DANETLSA_SMTP)
-execute_test(fqdn='mail.koeroo.net.',   port=143, probe_protocol=DANETLSAprotocols.DANETLSA_IMAP)
-execute_test(fqdn='mail.koeroo.net.',   port=465, probe_protocol=DANETLSAprotocols.DANETLSA_TLS)
-execute_test(fqdn='pop.kpnmail.nl',     port=110, probe_protocol=DANETLSAprotocols.DANETLSA_POP3)
+    execute_test(fqdn='smtp.koeroo.net',    port=25,  probe_protocol=DANETLSAprotocols.DANETLSA_SMTP)
+    execute_test(fqdn='mx.ncsc.nl',         port=25,  probe_protocol=DANETLSAprotocols.DANETLSA_SMTP)
+    execute_test(fqdn='mail.koeroo.net.',   port=143, probe_protocol=DANETLSAprotocols.DANETLSA_IMAP)
+    execute_test(fqdn='mail.koeroo.net.',   port=465, probe_protocol=DANETLSAprotocols.DANETLSA_TLS)
+    execute_test(fqdn='pop.kpnmail.nl',     port=110, probe_protocol=DANETLSAprotocols.DANETLSA_POP3)
 
-execute_test(fqdn='test.rebex.net.',     port=21, probe_protocol=DANETLSAprotocols.DANETLSA_FTP)
+    execute_test(fqdn='test.rebex.net.',     port=21, probe_protocol=DANETLSAprotocols.DANETLSA_FTP)
+
