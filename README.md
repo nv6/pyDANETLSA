@@ -23,9 +23,6 @@ Start a new instance of pyDANETLSA and initialize it with the following named at
 * certfile: Optional for network probe ***protocol*** selections. File path to a PEM or DER certificate to read. File must exist and must be a file (or symlink to a file).
 
 ### connect()
-See ***engage()***
-
-### engage()
 This will trigger the reading of the file or start the network connection to the selected ***protocol*** to extract the certificate, transform the certificate in the right internal formats and generate the information required for a DANE TLSA record. This information can then be retried with other methods.
 
 ### subject_dn()
