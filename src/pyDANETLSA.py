@@ -127,8 +127,8 @@ class DANETLSA(object):
             return False
 
 
-    def stuff(self):
-        return funcs.returnCertAKI(self.cert)
+#    def stuff(self):
+#        return funcs.returnCertAKI(self.cert)
 
 
     def pubkey_hex(self):
