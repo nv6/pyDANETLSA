@@ -127,11 +127,15 @@ class DANETLSA(object):
             return False
 
 
+    def stuff(self):
+        return funcs.returnCertAKI(self.cert)
+
+
     def pubkey_hex(self):
-        return funcs.x509_to_pubkey_key(self.x509)
+        return funcs.x509_to_pubkey_key(self.cert)
 
     def subject_dn(self):
-        return funcs.x509_to_subject_dn(self.x509)
+        return funcs.x509_to_subject_dn(self.cert)
 
     def tlsa_rdata_3_1_1(self):
         return "3 1 1 " + self.pubkey_hex()
@@ -196,4 +200,4 @@ class DANETLSA(object):
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
 
         ### Parsing into X.509 object
-        self.x509 = crypto.load_certificate(crypto.FILETYPE_ASN1, self.cert_der)
+        self.cert = crypto.load_certificate(crypto.FILETYPE_ASN1, self.cert_der)

@@ -36,11 +36,10 @@ def execute_test(fqdn=None, port=None, domain=None, tlsa_protocol='tcp',
     print("TLSA rdata 3 1 1 :", d.tlsa_rdata_3_1_1())
     print("TLSA RR          :", d.tlsa_rr())
     print("TLSA RR with FQDN:", d.tlsa_rr_fqdn())
-    print("-- done.")
-    print("DNS: ",              d.dns_tlsa())
-    print("Match DNS TLSA records with X.509 certificate:", d.match_cert_with_tlsa_rr())
-    print("----------------")
+    print("DNS              :", d.dns_tlsa())
+    print("Match DNS w/ X509:", d.match_cert_with_tlsa_rr())
 
+    print("-- done.")
 
 
 try:
