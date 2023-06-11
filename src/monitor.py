@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 import sys
+import json
 
-from pyDANETLSA import DANETLSAprotocols, DANETLSA
+from pyDANETLSA import DANETLSA
 from pyDANETLSA import DANETLS_protocol_to_str, str_to_DANETLS_protocol
 
 from libs.configuration import arguments, is_startup_clean
@@ -57,7 +58,7 @@ if __name__ == "__main__":
                         app_protocol=str_to_DANETLS_protocol(args.protocol),
                         verbose=args.verbose)
 
-    print(res)
+    print(json.dumps(res))
 
     if res['match_cert_with_tlsa_rr']:
         sys.exit(0)
