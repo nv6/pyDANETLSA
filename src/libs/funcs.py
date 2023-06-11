@@ -3,13 +3,13 @@
 import OpenSSL.crypto as crypto
 import hashlib
 import requests
+import datetime
 
 import ssl
-import socket
-from cryptography import x509
-from cryptography.x509.oid import ExtensionOID
-from cryptography.hazmat.primitives import hashes, serialization
-
+#import socket
+#from cryptography import x509
+#from cryptography.x509.oid import ExtensionOID
+#from cryptography.hazmat.primitives import hashes, serialization
 
 
 def x509_to_subject_dn(cert):
@@ -29,6 +29,15 @@ def x509_to_pubkey_key(cert):
     m.update(pubkey)
     m.digest()
     return m.hexdigest()
+
+
+def x509_not_valid_after(cert):
+    dt = datetime.datetime.strptime(cert.get_notAfter().decode("utf-8"), '%Y%m%d%H%M%SZ')
+    return dt.isoformat()
+
+def x509_not_valid_before(cert):
+    dt = datetime.datetime.strptime(cert.get_notBefore().decode("utf-8"), '%Y%m%d%H%M%SZ')
+    return dt.isoformat()
 
 
 #def x509_extract_uri(cert):

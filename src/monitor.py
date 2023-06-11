@@ -9,8 +9,8 @@ from libs.configuration import arguments, is_startup_clean
 
 
 def execute_test(fqdn=None, port=25, domain=None, 
-                tlsa_protocol='tcp', 
-                probe_protocol=None, certfile=None,
+                transport_proto='tcp', 
+                app_protocol=None, certfile=None,
                 verbose=False):
     if verbose:
         print(f"===")
@@ -18,18 +18,19 @@ def execute_test(fqdn=None, port=25, domain=None,
         print(f"t fqdn           : {fqdn}")
         print(f"t port           : {port}")
         print(f"t domain         : {domain}")
-        print(f"t tlsa_protocol  : {tlsa_protocol}")
-        print(f"t probe_protocol : {DANETLS_protocol_to_str(probe_protocol)}")
+        print(f"t transport_proto  : {transport_proto}")
+        print(f"t app_protocol : {DANETLS_protocol_to_str(app_protocol)}")
         print("- running:")
 
     d = DANETLSA(fqdn=fqdn, port=port,
-                            tlsa_protocol=tlsa_protocol,
-                            probe_protocol=probe_protocol, certfile=certfile)
+                            transport_proto=transport_proto,
+                            app_protocol=app_protocol, certfile=certfile)
     d.connect()
 
     if verbose:
         print("- output:")
         print("Subject DN       :", d.subject_dn())
+        print("Not valid after  :", d.x509_not_valid_after())
         print("Pub key hex      :", d.pubkey_hex())
         print("TLSA RR host     :", d.tlsa_rr_name_host())
         print("TLSA RR name     :", d.tlsa_rr_name_fqdn())
@@ -40,8 +41,9 @@ def execute_test(fqdn=None, port=25, domain=None,
         print("Match DNS w/ X509:", d.match_cert_with_tlsa_rr())
         print("-- done.")
 
+
     # On match, True. Otherwise False
-    return d.match_cert_with_tlsa_rr()
+    return d.results_to_dict()
 
 
 if __name__ == "__main__":
@@ -51,13 +53,13 @@ if __name__ == "__main__":
 
     res = execute_test(fqdn=args.fqdn,
                         port=args.port,
-                        tlsa_protocol=args.transport.lower(),
-                        probe_protocol=str_to_DANETLS_protocol(args.protocol),
+                        transport_proto=args.transport.lower(),
+                        app_protocol=str_to_DANETLS_protocol(args.protocol),
                         verbose=args.verbose)
 
-    if res:
-        print("{ \"DANETLS_OK\":true }")
+    print(res)
+
+    if res['match_cert_with_tlsa_rr']:
         sys.exit(0)
     else:
-        print("{ \"DANETLS_OK\":false }")
         sys.exit(1)

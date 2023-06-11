@@ -64,12 +64,12 @@ class DANETLSA(object):
     FTP : StartTLS for FTP
     """
     def __init__(self, fqdn=None, port=None, domain=None,
-                       tlsa_protocol='tcp', probe_protocol=DANETLSAprotocols.DANETLSA_TLS,
+                       transport_proto='tcp', app_protocol=DANETLSAprotocols.DANETLSA_TLS,
                        certfile=None):
-        if tlsa_protocol.lower() not in ['tcp', 'udp', 'sctp']:
+        if transport_proto.lower() not in ['tcp', 'udp', 'sctp']:
             raise ValueError("Unknown protocol/method set for TLSA output record.")
 
-        if probe_protocol not in DANETLSAprotocols:
+        if app_protocol not in DANETLSAprotocols:
             raise ValueError("Unknown protocol/method set for reading/probing.")
 
         if fqdn is None:
@@ -81,8 +81,8 @@ class DANETLSA(object):
         # Fill class with values
         self.fqdn = fqdn
         self.port = port
-        self.tlsa_protocol = tlsa_protocol.lower()
-        self.probe_protocol = probe_protocol
+        self.transport_proto = transport_proto.lower()
+        self.app_protocol = app_protocol
         self.domain = domain
         self.certfile = certfile
 
@@ -139,6 +139,11 @@ class DANETLSA(object):
 #    def stuff(self):
 #        return funcs.returnCertAKI(self.cert)
 
+    def x509_not_valid_after(self):
+        return funcs.x509_not_valid_after(self.cert)
+            
+    def x509_not_valid_before(self):
+        return funcs.x509_not_valid_before(self.cert)
 
     def pubkey_hex(self):
         return funcs.x509_to_pubkey_key(self.cert)
@@ -151,12 +156,12 @@ class DANETLSA(object):
 
     def tlsa_rr_name_host(self):
         return "_" + str(self.port) + "." + \
-               "_" + self.tlsa_protocol + "." + \
+               "_" + self.transport_proto + "." + \
                self.host
 
     def tlsa_rr_name_fqdn(self):
         return "_" + str(self.port) + "." + \
-               "_" + self.tlsa_protocol + "." + \
+               "_" + self.transport_proto + "." + \
                self.fqdn + "."
 
     def tlsa_rr(self):
@@ -170,39 +175,39 @@ class DANETLSA(object):
                self.tlsa_rdata_3_1_1()
 
     def connect(self):
-        if self.probe_protocol == DANETLSAprotocols.DANETLSA_TLS:
+        if self.app_protocol == DANETLSAprotocols.DANETLSA_TLS:
             self.cert_pem = ssl.get_server_certificate((self.fqdn, self.port))
             self.cert_der = ssl.PEM_cert_to_DER_cert(self.cert_pem)
 
-        elif self.probe_protocol == DANETLSAprotocols.DANETLSA_SMTP:
+        elif self.app_protocol == DANETLSAprotocols.DANETLSA_SMTP:
             smtp = smtplib.SMTP(self.fqdn, port=self.port)
             smtp.starttls()
             self.cert_der = smtp.sock.getpeercert(binary_form=True)
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
 
-        elif self.probe_protocol == DANETLSAprotocols.DANETLSA_IMAP:
+        elif self.app_protocol == DANETLSAprotocols.DANETLSA_IMAP:
             imap = imaplib.IMAP4(self.fqdn, self.port)
             imap.starttls()
             self.cert_der = imap.sock.getpeercert(binary_form=True)
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
 
-        elif self.probe_protocol == DANETLSAprotocols.DANETLSA_POP3:
+        elif self.app_protocol == DANETLSAprotocols.DANETLSA_POP3:
             pop = poplib.POP3(self.fqdn, self.port)
             pop.stls()
             self.cert_der = pop.sock.getpeercert(binary_form=True)
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
 
-        elif self.probe_protocol == DANETLSAprotocols.DANETLSA_PEM:
+        elif self.app_protocol == DANETLSAprotocols.DANETLSA_PEM:
             f = open(self.certfile, "r")
             self.cert_pem = f.read()
             self.cert_der = ssl.PEM_cert_to_DER_cert(self.cert_pem)
 
-        elif self.probe_protocol == DANETLSAprotocols.DANETLSA_DER:
+        elif self.app_protocol == DANETLSAprotocols.DANETLSA_DER:
             f = open(self.certfile, "rb")
             self.cert_der = f.read()
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
 
-        elif self.probe_protocol == DANETLSAprotocols.DANETLSA_FTP:
+        elif self.app_protocol == DANETLSAprotocols.DANETLSA_FTP:
             ftps = ftplib.FTP_TLS(self.fqdn)
             ftps.auth()
             self.cert_der = ftps.sock.getpeercert(binary_form=True)
@@ -211,6 +216,60 @@ class DANETLSA(object):
         ### Parsing into X.509 object
         self.cert = crypto.load_certificate(crypto.FILETYPE_ASN1, self.cert_der)
 
+    def results_to_dict(self):
+        r = {}
+        r['fqdn'] = self.fqdn
+        r['host'] = self.host
+        r['domain'] = self.domain
+        r['port'] = self.port
+        r['transport_proto'] = self.transport_proto
+        r['app_protocol'] = DANETLS_protocol_to_str(self.app_protocol)
+        r['subject_dn'] = self.subject_dn()
+        r['x509_not_valid_before'] = self.x509_not_valid_before()
+        r['x509_not_valid_after'] = self.x509_not_valid_after()
+        r['pubkey_hex'] = self.pubkey_hex()
+        r['tlsa_rr_name_host'] = self.tlsa_rr_name_host()
+        r['tlsa_rr_name_fqdn'] = self.tlsa_rr_name_fqdn()
+        r['tlsa_rdata_3_1_1'] = self.tlsa_rdata_3_1_1()
+        r['tlsa_rr'] = self.tlsa_rr()
+        r['tlsa_rr_fqdn'] = self.tlsa_rr_fqdn()
+        r['dns_tlsa'] = self.dns_tlsa()
+        r['match_cert_with_tlsa_rr'] = self.match_cert_with_tlsa_rr()
+
+        return r
+
+def execute_test(fqdn=None, port=25, domain=None, 
+                    transport_proto='tcp', 
+                    app_protocol=None, certfile=None,
+                    verbose=False):
+    if verbose:
+        print(f"===")
+        print(f"- input:")
+        print(f"t fqdn           : {fqdn}")
+        print(f"t port           : {port}")
+        print(f"t domain         : {domain}")
+        print(f"t transport_proto: {transport_proto}")
+        print(f"t app_protocol   : {DANETLS_protocol_to_str(app_protocol)}")
+        print("- running:")
+
+    d = DANETLSA(fqdn=fqdn, port=port,
+                            transport_proto=transport_proto,
+                            app_protocol=app_protocol, certfile=certfile)
+    d.connect()
+
+    if verbose:
+        print("- output:")
+        print("Subject DN       :", d.subject_dn())
+        print("Not valid after  :", d.x509_not_valid_after())
+        print("Pub key hex      :", d.pubkey_hex())
+        print("TLSA RR host     :", d.tlsa_rr_name_host())
+        print("TLSA RR name     :", d.tlsa_rr_name_fqdn())
+        print("TLSA rdata 3 1 1 :", d.tlsa_rdata_3_1_1())
+        print("TLSA RR          :", d.tlsa_rr())
+        print("TLSA RR with FQDN:", d.tlsa_rr_fqdn())
+        print("DNS results      :", d.dns_tlsa())
+        print("Match DNS w/ X509:", d.match_cert_with_tlsa_rr())
+        print("-- done.")
 
 
 ### Start up
