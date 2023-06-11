@@ -36,6 +36,18 @@ def DANETLS_protocol_to_str(protocol):
     elif protocol == DANETLSAprotocols.DANETLSA_FTP : return "FTP"
 
 
+def str_to_DANETLS_protocol(proto: str):
+    if   proto.upper() == "IMAP": return DANETLSAprotocols.DANETLSA_IMAP
+    elif proto.upper() == "POP3": return DANETLSAprotocols.DANETLSA_POP3
+    elif proto.upper() == "SMTP": return DANETLSAprotocols.DANETLSA_SMTP
+    elif proto.upper() == "TLS":  return DANETLSAprotocols.DANETLSA_TLS
+    elif proto.upper() == "PEM":  return DANETLSAprotocols.DANETLSA_PEM
+    elif proto.upper() == "DER":  return DANETLSAprotocols.DANETLSA_DER
+    elif proto.upper() == "FTP":  return DANETLSAprotocols.DANETLSA_FTP
+    else:
+        raise ValueError("Unknown protocol provided")
+
+
 def DANETLSA_get_supported_protocols():
     for i in DANETLSAprotocols:
         print(DANETLS_protocol_to_str(i))
