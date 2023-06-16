@@ -16,9 +16,9 @@ RUN echo '*.*  action(type="omfwd" target="syslog.koeroo.lan" port="514" protoco
     > /etc/rsyslog.d/10-syslog.koeroo.lan.conf
 
 
-# CMD ./monitor.py --fqdn smtp.koeroo.net --port 25 --protocol SMTP --syslog-ident danetlsa
+CMD rsyslogd && ./monitor.py --fqdn smtp.koeroo.net --port 25 --protocol SMTP --syslog-ident danetlsa
 
 #ENTRYPOINT [ "cron", "-f" ]
 
-ENTRYPOINT [ "/bin/bash" ]
+# ENTRYPOINT [ "/bin/bash" ]
 #CMD /bin/bash

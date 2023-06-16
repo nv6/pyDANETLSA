@@ -33,6 +33,8 @@ def execute_test(fqdn=None, port=25, domain=None,
         print("- output:")
         print("Subject DN       :", d.subject_dn())
         print("Not valid after  :", d.x509_not_valid_after())
+        print("Time left on cert:", d.time_left_on_certificate())
+        print("Time left        :", d.time_left_on_certificate_dict())
         print("Pub key hex      :", d.pubkey_hex())
         print("TLSA RR host     :", d.tlsa_rr_name_host())
         print("TLSA RR name     :", d.tlsa_rr_name_fqdn())
@@ -64,9 +66,9 @@ def monitor(args):
     print(json.dumps(res))
 
     if res['match_cert_with_tlsa_rr']:
-        sys.exit(0)
+        return 0
     else:
-        sys.exit(1)
+        return 1
 
 
 if __name__ == "__main__":
@@ -74,4 +76,5 @@ if __name__ == "__main__":
     if not is_startup_clean(args):
         sys.exit(1)
 
-    monitor(args)
+    res = monitor(args)
+    sys.exit(res)

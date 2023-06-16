@@ -30,6 +30,11 @@ def x509_to_pubkey_key(cert):
     m.digest()
     return m.hexdigest()
 
+def time_left_on_certificate(cert):
+    dt = datetime.datetime.strptime(cert.get_notAfter().decode("utf-8"), '%Y%m%d%H%M%SZ')
+    now = datetime.datetime.now()
+    delta = dt - now
+    return delta
 
 def x509_not_valid_after(cert):
     dt = datetime.datetime.strptime(cert.get_notAfter().decode("utf-8"), '%Y%m%d%H%M%SZ')
