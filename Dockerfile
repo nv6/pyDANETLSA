@@ -1,11 +1,8 @@
 FROM python:slim-buster
 
-RUN apt-get update && apt-get -y install cron
+RUN apt-get update && apt-get -y install rsyslog
 
 WORKDIR /usr/src/app
-
-COPY crontab /etc/cron.d/crontab
-RUN chmod 0644 /etc/cron.d/crontab
 
 COPY src/requirements.txt .
 
@@ -15,5 +12,13 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY src/*.py .
 COPY src/libs/*.py libs/
 
-# CMD ./monitor.py --fqdn smtp.koeroo.net --port 25 --protocol SMTP
-CMD ["cron", "-f"]
+RUN echo '*.*  action(type="omfwd" target="syslog.koeroo.lan" port="514" protocol="udp")' \
+    > /etc/rsyslog.d/10-syslog.koeroo.lan.conf
+
+
+# CMD ./monitor.py --fqdn smtp.koeroo.net --port 25 --protocol SMTP --syslog-ident danetlsa
+
+#ENTRYPOINT [ "cron", "-f" ]
+
+ENTRYPOINT [ "/bin/bash" ]
+#CMD /bin/bash

@@ -35,6 +35,17 @@ def arguments():
                         choices=DANETLSA_get_supported_protocols(),
                         default=None,
                         type=str)
+    parser.add_argument("-ss", "--syslog-server",
+                        dest='syslog_server',
+                        help="Syslog server",
+                        default=None,
+                        type=str)
+    parser.add_argument("-si", "--syslog-ident",
+                        dest='syslog_ident',
+                        help="Syslog ident",
+                        default=None,
+                        type=str)
+
 
     return parser.parse_args()
 

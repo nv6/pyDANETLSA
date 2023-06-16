@@ -2,6 +2,7 @@
 
 import sys
 import json
+import syslog
 
 from pyDANETLSA import DANETLSA
 from pyDANETLSA import DANETLS_protocol_to_str, str_to_DANETLS_protocol
@@ -47,10 +48,10 @@ def execute_test(fqdn=None, port=25, domain=None,
     return d.results_to_dict()
 
 
-if __name__ == "__main__":
-    args = arguments()
-    if not is_startup_clean(args):
-        sys.exit(1)
+def monitor(args):
+    # Openlog with ident
+    if args.syslog_ident is not None:
+        syslog.openlog(args.syslog_ident)
 
     res = execute_test(fqdn=args.fqdn,
                         port=args.port,
@@ -58,9 +59,19 @@ if __name__ == "__main__":
                         app_protocol=str_to_DANETLS_protocol(args.protocol),
                         verbose=args.verbose)
 
+
+    syslog.syslog(syslog.LOG_INFO|syslog.LOG_DAEMON, json.dumps(res))
     print(json.dumps(res))
 
     if res['match_cert_with_tlsa_rr']:
         sys.exit(0)
     else:
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    args = arguments()
+    if not is_startup_clean(args):
+        sys.exit(1)
+
+    monitor(args)

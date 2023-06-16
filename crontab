@@ -1,3 +1,4 @@
-# START CRON JOB
-* * * * * ./monitor.py --fqdn smtp.koeroo.net --port 25 --protocol SMTP > /proc/1/fd/1 2>/proc/1/fd/2
-# END CRON JOB
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+* * * * * python3 /usr/src/app/monitor.py --fqdn smtp.koeroo.net --port 25 --protocol SMTP
