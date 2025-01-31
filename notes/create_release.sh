@@ -2,6 +2,13 @@
 
 pwd
 
+
+read -p 'Did you update the setup.cfg file? [y/N]: ' ANSWER
+if [ "$ANSWER" != 'y' ]; then
+    exit 1
+fi
+echo
+
 read -p 'Remove dist/ [y/N]: ' ANSWER
 if [ "$ANSWER" != 'y' ]; then
     exit 1
