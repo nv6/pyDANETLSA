@@ -74,6 +74,30 @@ Returns full resource record, which looks a lot like a zone file, the host is no
 _465._tcp.smtp.koeroo.net. IN TLSA 3 1 1 78a80c6362af724f11433375890632cc099cd55a985c6e4a4a8ad741fe032f35
 ```
 
+### dns_tlsa()
+Returns the TLSA resources records.
+```
+['2 1 1 8d02536c887482bc34ff54e41d2ba659bf85b341a0a20afadb5813dcfbcf286d', '3 1 1 3cf4ab0c2bf87ddb8b9425c2537d3b7841422eab3a8c5323fbdbd64e419b0a54']
+```
+
+### x509_not_valid_after()
+Returns X.509 not valid after ISO8601 format.
+```
+2025-03-16T01:48:24
+```
+
+### match_cert_with_tlsa_rr()
+Does the certificate match the TLSA resource record, false or true.
+```
+False (boolean)
+```
+
+### results_to_dict()
+Results as a dictionary
+```
+dict
+```
+
 
 ## Example:
 ```python
