@@ -5,7 +5,7 @@ from pyDANETLSA import DANETLSA_get_supported_protocols, DANETLS_protocol_to_str
 
 
 
-def execute_test(fqdn=None, port=None, domain=None, transport_proto='tcp', 
+def execute_test(fqdn=None, port=None, domain=None, transport_proto='tcp',
                  app_protocol=None, certfile=None):
     print("===")
     print("- input:")
@@ -69,4 +69,9 @@ def runtest():
     execute_test(fqdn='pop.kpnmail.nl',     port=110, app_protocol=DANETLSAprotocols.DANETLSA_POP3)
 
     execute_test(fqdn='test.rebex.net.',     port=21, app_protocol=DANETLSAprotocols.DANETLSA_FTP)
+
+
+# MAIN
+if __name__ == "__main__":
+    runtest()
 
