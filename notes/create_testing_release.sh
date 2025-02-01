@@ -1,21 +1,7 @@
 #!/bin/bash
 
-pwd
-
-
-read -p 'Did you update the pyproject.toml file? [y/N]: ' ANSWER
-if [ "$ANSWER" != 'y' ]; then
-    exit 1
-fi
-echo
-
-read -p 'Remove dist/ [y/N]: ' ANSWER
-if [ "$ANSWER" != 'y' ]; then
-    exit 1
-fi
-rm -rv dist/
-
 VERSION=$(sed -n 's/^version = "\([^"]*\)"/\1/p' pyproject.toml)
+
 
 read -p "Detected version in setup.cfg is \"$VERSION\". Is this correct? " ANSWER
 if [ "$ANSWER" != 'y' ]; then
@@ -23,8 +9,23 @@ if [ "$ANSWER" != 'y' ]; then
 fi
 
 
-echo "Build..."
+echo "Removing dist..."
+rm -rv dist/
+
+echo "Building..."
 python3 -m build || exit 1
+
+
+echo "Inspecting:"
+echo "---"
+tar tzf dist/pydanetlsa-${VERSION}.tar.gz
+echo "---"
+
+
+read -p "Upload to testpypi? [y/N] " ANSWER
+if [ "$ANSWER" != 'y' ]; then
+    exit 1
+fi
 
 echo
 echo "Twine..."
