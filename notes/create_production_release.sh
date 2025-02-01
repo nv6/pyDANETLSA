@@ -27,7 +27,7 @@ python3 -m build || exit 1
 
 echo
 echo "Twine..."
-python3 -m twine upload --repository testpypi dist/* --verbose || exit 1
+python3 -m twine upload --repository pypi dist/* --verbose || exit 1
 echo
 
 echo "test install with:"
@@ -37,5 +37,5 @@ cd /tmp/testingground
 python3 -m venv .venv
 . .venv/bin/activate
 python3 -m pip install -r requirements.txt
-python3 -m pip install -i https://test.pypi.org/simple/ pyDANETLSA==${ANSWER}
+python3 -m pip install -i https://pypi.org/simple/ pyDANETLSA==${ANSWER}
 "
