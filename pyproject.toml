@@ -7,7 +7,7 @@ where = ["src"]
 
 [project]
 name = "pyDANETLSA"
-version = "1.0.2"
+version = "1.0.3"
 description = "Python library to generate a TLSA record format based on the active certificate on a host."
 readme = "README.md"
 authors = [{ name = "Oscar Koeroo", email = "okoeroo@gmail.com" }]
