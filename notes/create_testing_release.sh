@@ -10,7 +10,7 @@ fi
 
 
 echo "Removing dist..."
-rm -rv dist/
+rm -rf dist build *.egg-info
 
 echo "Building..."
 python3 -m build || exit 1

@@ -9,8 +9,8 @@ import smtplib
 import OpenSSL.crypto as crypto
 from enum import Enum
 
-from libs import funcs
-from libs import dnstools
+from .libs import funcs
+from .libs import dnstools
 
 
 class DANETLSAprotocols(Enum):
@@ -20,7 +20,7 @@ class DANETLSAprotocols(Enum):
     DANETLSA_TLS  = 40
     DANETLSA_PEM  = 50
     DANETLSA_DER  = 60
-    DANETLSA_FTP  = 70    
+    DANETLSA_FTP  = 70
 
 
 def DANETLS_protocol_to_str(protocol):
@@ -114,7 +114,7 @@ class DANETLSA(object):
         # Parse and construct config for dnspython
         dns_config = dnstools.DnsPythonConfig(None)
         status, answers = dnstools.dns_query(self.tlsa_rr_name_fqdn(),
-                                    'TLSA', 
+                                    'TLSA',
                                     None,
                                     False)
         if status != dnstools.DNSERRORS.NOERROR:
@@ -147,7 +147,7 @@ class DANETLSA(object):
         d = {}
         d["days"] = td.days
         d["hours"] = td.seconds // 3600
-        h = td.seconds // 3600 
+        h = td.seconds // 3600
         m = (td.seconds - h * 3600) // 60
         d["minutes"] = m
         d["seconds"] = td.seconds % 60
@@ -156,7 +156,7 @@ class DANETLSA(object):
 
     def x509_not_valid_after(self):
         return funcs.x509_not_valid_after(self.cert)
-            
+
     def x509_not_valid_before(self):
         return funcs.x509_not_valid_before(self.cert)
 
@@ -255,8 +255,8 @@ class DANETLSA(object):
 
         return r
 
-def execute_test(fqdn=None, port=25, domain=None, 
-                    transport_proto='tcp', 
+def execute_test(fqdn=None, port=25, domain=None,
+                    transport_proto='tcp',
                     app_protocol=None, certfile=None,
                     verbose=False):
     if verbose:

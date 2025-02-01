@@ -2,12 +2,9 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-
 [project]
 name = "pyDANETLSA"
-version = "1.0.3"
+version = "1.0.8"
 description = "Python library to generate a TLSA record format based on the active certificate on a host."
 readme = "README.md"
 authors = [{ name = "Oscar Koeroo", email = "okoeroo@gmail.com" }]
@@ -30,3 +27,11 @@ classifiers = [
 Homepage = "https://github.com/okoeroo/pyDANETLSA"
 Repository = "https://github.com/okoeroo/pyDANETLSA"
 Issues = "https://github.com/okoeroo/pyDANETLSA/issues"
+
+
+#[tool.setuptools.packages.find]
+#where = ["src"]
+#include = ["pyDANETLSA.py", "libs"]  # Explicitly include only your package
+
+[tool.setuptools.packages.find]
+where = ["src"]
