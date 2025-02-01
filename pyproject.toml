@@ -2,3 +2,31 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+packages = ["pyDANETLSA"]
+
+[project]
+name = "pyDANETLSA"
+version = "1.0.2"
+description = "Python library to generate a TLSA record format based on the active certificate on a host."
+readme = "README.md"
+authors = [{ name = "Oscar Koeroo", email = "okoeroo@gmail.com" }]
+license = { text = "MIT" }
+dependencies = [
+    "cryptography",
+    "pyOpenSSL",
+    "requests",
+    "dnspython"
+]
+requires-python = ">=3.8"
+keywords = ["DANE", "TLSA", "X.509", "X509", "certificate"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/okoeroo/pyDANETLSA"
+Repository = "https://github.com/okoeroo/pyDANETLSA"
+Issues = "https://github.com/okoeroo/pyDANETLSA/issues"
