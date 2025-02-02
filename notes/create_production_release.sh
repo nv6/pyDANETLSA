@@ -1,41 +1,32 @@
 #!/bin/bash
 
-pwd
-
-
-read -p 'Did you update the pyproject.toml file? [y/N]: ' ANSWER
-if [ "$ANSWER" != 'y' ]; then
-    exit 1
-fi
-echo
-
-read -p 'Remove dist/ [y/N]: ' ANSWER
-if [ "$ANSWER" != 'y' ]; then
-    exit 1
-fi
-rm -rv dist/
-
 VERSION=$(sed -n 's/^version = "\([^"]*\)"/\1/p' pyproject.toml)
+
+
 read -p "Detected version in setup.cfg is \"$VERSION\". Is this correct? " ANSWER
 if [ "$ANSWER" != 'y' ]; then
     exit 1
 fi
 
 
-echo "Build..."
+echo "Removing dist..."
+rm -rf dist build *.egg-info
+
+echo "Building..."
 python3 -m build || exit 1
 
-echo
-echo "Twine..."
-python3 -m twine upload --repository pypi dist/* --verbose || exit 1
-echo
 
-echo "test install with:"
-echo "
-mkdir /tmp/testingground
-cd /tmp/testingground
-python3 -m venv .venv
-. .venv/bin/activate
-python3 -m pip install cryptography pyOpenSSL requests dnspython
-python3 -m pip install -i https://pypi.org/simple/ pyDANETLSA==${VERSION}
-"
+echo "Inspecting:"
+echo "---"
+tar tzf dist/pydanetlsa-${VERSION}.tar.gz
+echo "---"
+
+
+read -p "Upload to PRODUCTION pypi? [y/N] " ANSWER
+if [ "$ANSWER" = 'y' ]; then
+    echo
+    echo "Twine..."
+    python3 -m twine upload --repository pypi dist/* --verbose || exit 1
+    echo
+fi
+
