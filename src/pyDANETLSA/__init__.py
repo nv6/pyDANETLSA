@@ -65,7 +65,7 @@ class DANETLSA(object):
     """
     def __init__(self, fqdn=None, port=None, domain=None,
                        transport_proto='tcp', app_protocol=DANETLSAprotocols.DANETLSA_TLS,
-                       certfile=None):
+                       certfile=None, timeout=10):
         if transport_proto.lower() not in ['tcp', 'udp', 'sctp']:
             raise ValueError("Unknown protocol/method set for TLSA output record.")
 
@@ -85,6 +85,7 @@ class DANETLSA(object):
         self.app_protocol = app_protocol
         self.domain = domain
         self.certfile = certfile
+        self.timeout = timeout # seconds
 
         # Normalization
         if self.fqdn[-1] == '.':
@@ -191,23 +192,24 @@ class DANETLSA(object):
 
     def connect(self):
         if self.app_protocol == DANETLSAprotocols.DANETLSA_TLS:
-            self.cert_pem = ssl.get_server_certificate((self.fqdn, self.port))
+            self.cert_pem = ssl.get_server_certificate((self.fqdn, self.port),
+                                                       timeout=self.timeout)
             self.cert_der = ssl.PEM_cert_to_DER_cert(self.cert_pem)
 
         elif self.app_protocol == DANETLSAprotocols.DANETLSA_SMTP:
-            smtp = smtplib.SMTP(self.fqdn, port=self.port)
+            smtp = smtplib.SMTP(host=self.fqdn, port=self.port, timeout=self.timeout)
             smtp.starttls()
             self.cert_der = smtp.sock.getpeercert(binary_form=True)
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
 
         elif self.app_protocol == DANETLSAprotocols.DANETLSA_IMAP:
-            imap = imaplib.IMAP4(self.fqdn, self.port)
+            imap = imaplib.IMAP4(self.fqdn, self.port, timeout=self.timeout)
             imap.starttls()
             self.cert_der = imap.sock.getpeercert(binary_form=True)
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
 
         elif self.app_protocol == DANETLSAprotocols.DANETLSA_POP3:
-            pop = poplib.POP3(self.fqdn, self.port)
+            pop = poplib.POP3(self.fqdn, self.port, self.timeout)
             pop.stls()
             self.cert_der = pop.sock.getpeercert(binary_form=True)
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
@@ -223,7 +225,7 @@ class DANETLSA(object):
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
 
         elif self.app_protocol == DANETLSAprotocols.DANETLSA_FTP:
-            ftps = ftplib.FTP_TLS(self.fqdn)
+            ftps = ftplib.FTP_TLS(self.fqdn, timeout=self.timeout)
             ftps.auth()
             self.cert_der = ftps.sock.getpeercert(binary_form=True)
             self.cert_pem = ssl.DER_cert_to_PEM_cert(self.cert_der)
