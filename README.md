@@ -99,17 +99,38 @@ dict
 ```
 
 
-## Example:
+## Examples
+
+### Probe connection
+
 ```python
 #!/usr/bin/env python3
 
 import pyDANETLSA
 
-print("Protocol support list:", pyDANETLSA.DANETLS_protocols)
+print("Protocol support list:", pyDANETLSA.DANETLSA_get_supported_protocols())
 
-d = pyDANETLSA.danetlsa(fqdn='smtp.koeroo.net.', port=25,  protocol=pyDANETLSA.DANETLSA_SMTP)
+d = pyDANETLSA.DANETLSA(
+   fqdn='smtp.koeroo.net.',
+   port=25,
+   app_protocol=pyDANETLSA.DANETLSAprotocols.DANETLSA_SMTP)
 d.connect()
 print("TLSA RR with FQDN", d.tlsa_rr_fqdn())
 print("Match DNS TLSA records with X.509 certificate:", d.match_cert_with_tlsa_rr())
 ```
 
+### Read certificate file
+
+```python
+#!/usr/bin/env python3
+
+from pyDANETLSA import DANETLSA, DANETLSAprotocols
+
+d = DANETLSA(
+   fqdn='foobar.koeroo.net',
+   port='777',
+   app_protocol=DANETLSAprotocols.DANETLSA_PEM,
+   certfile="testcert/dummy.pem")
+d.connect()
+print("TLSA RR with FQDN:", d.tlsa_rr_fqdn())
+```
