@@ -34,9 +34,9 @@ def x509_to_digest(cert: crypto.X509 | bytes, tlsa_match_type: int = 1) -> str:
     if tlsa_match_type not in (1, 2):
         # [RFC 6698 sec2.1.3] TLSA digest match type must be 1 (SHA256) or 2 (SHA512)
         tlsa_match_type = 1
-    certbytes = cert if cert.__class__ is bytes else crypto.dump_certificate(crypto.FILETYPE_ASN1, cert)
-    m = hashlib.sha512() if digest_type == 2 else hashlib.sha256()
-    m.update(pubkey)
+    certbytes = cert if cert.__class__ is bytes else crypto.dump_certificate(crypto.FILETYPE_ASN1, cert)  # pyright: ignore[reportArgumentType]
+    m = hashlib.sha512() if tlsa_match_type == 2 else hashlib.sha256()
+    m.update(certbytes)  # pyright: ignore[reportArgumentType]
     return m.hexdigest()
 
 def time_left_on_certificate(cert: crypto.X509) -> datetime.timedelta:
@@ -59,14 +59,14 @@ def x509_not_valid_before(cert: crypto.X509) -> str:
 
 def getCertificateFromUri(__uri):
     """Gets the certificate from a URI.
-    By default, we're expecting to find nothing. Therefore certI = None. 
+    By default, we're expecting to find nothing. Therefore certI = None.
     If we find something, we'll update certI accordingly.
     """
     cert = None
 
     # Attempt to get the aia from __uri
     aiaRequest = requests.get(__uri)
-    
+
     # If response status code is 200
     if aiaRequest.status_code == 200:
         # Get the content and assign to aiaContent
@@ -105,7 +105,7 @@ def returnCertAIA(__sslCertificate):
 
     except x509.extensions.ExtensionNotFound:
         certAIA = None
-    
+
     return certAIA
 
 
@@ -130,10 +130,10 @@ def returnCertAIAList(__sslCertificate):
 
 def walkTheChain(__sslCertificate, __depth):
     """
-    Walk the length of the chain, fetching information from AIA 
+    Walk the length of the chain, fetching information from AIA
     along the way until AKI == SKI (i.e. we've found the Root CA.
 
-    This is to prevent recursive loops. Usually there are only 4 certificates. 
+    This is to prevent recursive loops. Usually there are only 4 certificates.
     If the maxDepth is too small (why?) adjust it at the beginning of the script.
     """
     if __depth <= maxDepth:
@@ -150,7 +150,7 @@ def walkTheChain(__sslCertificate, __depth):
 
         # Get the value of the SKI from certSKI
         certSKIValue = certSKI._value.digest
-        
+
         # Sometimes the AKI can be none. Lets handle this accordingly.
         if certAKIValue is not None:
             aiaUriList = returnCertAIAList(__sslCertificate)
