@@ -44,7 +44,7 @@ def TLSA_flag_sequence_validator(i: int) -> int:
     VALID_SEQUENCES = (201, 202, 301, 302, 311)
     DISCOURAGED_SEQUENCES = (200, 210, 211, 212)
     if i in DISCOURAGED_SEQUENCES:
-        raise NotImplementedError(f'TLSA flag sequence "{i}" is not recommended for DANE-TA, per RFC 7671 sec5.2.1, thus not handled')
+        raise NotImplementedError(f'TLSA flag sequence "{i}" is not recommended for DANE-TA, per RFC 7671 sec5.2, thus not handled')
     if i not in VALID_SEQUENCES:
         raise NotImplementedError(f'TLSA flag sequence "{i}" is not handled -- should be one of {{{VALID_SEQUENCES}}}')
     return i

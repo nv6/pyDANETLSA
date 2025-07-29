@@ -1,8 +1,14 @@
-Author: Oscar Koeroo
+Author: Nivesh Varma
 
+[Original module](https://github.com/koeroo/pyDANETLSA) author: Oscar Koeroo
 
 # pyDANETLSA
-Generate TLSA record for DANE. Generated either by probing the resource and using a StartTLS or plain TLS handshake to extract the certificate, public key and formulate a TLSA 3 1 1 format. Also a X.509 in PEM or DER file format is possible.
+Generate TLSA record for DANE. Generated either by probing the resource and using a StartTLS or plain TLS handshake to extract the certificate, public key and formulate a TLSA 3 1 1 or 2 0 1 format. Also a X.509 in PEM or DER file format is possible.
+
+- ***3 1 1*** indicates a DANE-EE record identified by the hash of the certificate's public key
+- ***2 0 1*** indicates a DANE-TA record identified by the hash of the full certificate
+
+> Refer to RFC 6698, 7218, and 7671 for DANE TLSA specs and recommendations
 
 ## Class: danetlsa
 ### Initializer / __init__():
@@ -63,15 +69,21 @@ _25._tcp.smtp.koeroo.net.
 ```
 
 ### tlsa_rr()
-Returns full resource record, which looks a lot like a zone file.
+Returns full resource record in ***3 1 1*** format, which looks a lot like a zone file.
 ```
 _25._tcp.smtp IN TLSA 3 1 1 78a80c6362af724f11433375890632cc099cd55a985c6e4a4a8ad741fe032f35
 ```
 
 ### tlsa_rr_fqdn()
-Returns full resource record, which looks a lot like a zone file, the host is now an absolute name.
+Returns full resource record in ***3 1 1*** format, which looks a lot like a zone file, the host is now an absolute name.
 ```
 _465._tcp.smtp.koeroo.net. IN TLSA 3 1 1 78a80c6362af724f11433375890632cc099cd55a985c6e4a4a8ad741fe032f35
+```
+
+### tlsa_rr_fqdn(201)
+Returns full resource record in ***2 0 1*** format with absolute host name.
+```
+_465._tcp.another.site.net. IN TLSA 2 0 1 aee7a5628580f5400b93730cfbf6f42b52d0e618be8452f69ebfe30239858dd5
 ```
 
 ### dns_tlsa()
@@ -132,5 +144,5 @@ d = DANETLSA(
    app_protocol=DANETLSAprotocols.DANETLSA_PEM,
    certfile="testcert/dummy.pem")
 d.connect()
-print("TLSA RR with FQDN:", d.tlsa_rr_fqdn())
+print("TLSA RR with FQDN:", d.tlsa_rr_fqdn())  # or .tlsa_rr_fqdn(201) for DANE-TA (default is 311 for DANE-EE)
 ```
