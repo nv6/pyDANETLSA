@@ -4,10 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyDANETLSA"
-version = "1.0.11"
+version = "1.1.0"
 description = "Python library to generate a TLSA record format based on the active certificate on a host."
 readme = "README.md"
-authors = [{ name = "Oscar Koeroo", email = "okoeroo@gmail.com" }]
+authors = [
+    { name = "Oscar Koeroo", email = "okoeroo@gmail.com" },
+    { name = "Nivesh Varma", email = "73319848+nv6@users.noreply.github.com" }
+]
 license = { text = "MIT" }
 dependencies = [
     "cryptography",
@@ -15,7 +18,7 @@ dependencies = [
     "requests",
     "dnspython"
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 keywords = ["DANE", "TLSA", "X.509", "X509", "certificate"]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -35,3 +38,8 @@ Issues = "https://github.com/okoeroo/pyDANETLSA/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[dependency-groups]
+dev = [
+    "rich>=14.1.0",
+]
