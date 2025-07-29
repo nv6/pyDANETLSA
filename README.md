@@ -10,6 +10,17 @@ Generate TLSA record for DANE. Generated either by probing the resource and usin
 
 > Refer to RFC 6698, 7218, and 7671 for DANE TLSA specs and recommendations
 
+## installation
+
+pip:
+```sh
+pip install https://github.com/nv6/pyDANETLSA/archive/dev.zip
+```
+uv:
+```sh
+uv add https://github.com/nv6/pyDANETLSA/archive/dev.zip
+```
+
 ## Class: danetlsa
 ### Initializer / `__init__()`:
 Start a new instance of pyDANETLSA and initialize it with the following named attributes:
