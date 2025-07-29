@@ -38,3 +38,8 @@ Issues = "https://github.com/okoeroo/pyDANETLSA/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[dependency-groups]
+dev = [
+    "rich>=14.1.0",
+]
