@@ -1,6 +1,6 @@
 Author: Nivesh Varma
 
-[Original module](https://github.com/koeroo/pyDANETLSA) author: Oscar Koeroo
+[Original module](https://github.com/okoeroo/pyDANETLSA) author: Oscar Koeroo
 
 # pyDANETLSA
 Generate TLSA record for DANE. Generated either by probing the resource and using a StartTLS or plain TLS handshake to extract the certificate, public key and formulate a TLSA 3 1 1 or 2 0 1 format. Also a X.509 in PEM or DER file format is possible.
