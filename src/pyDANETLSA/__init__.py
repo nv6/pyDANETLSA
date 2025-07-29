@@ -23,6 +23,33 @@ class DANETLSAprotocols(Enum):
     DANETLSA_FTP  = 70
 
 
+class TLSAflags:
+    """RFC 7218 sec2.1 - 2.3
+    """
+    class Usage(Enum):
+        PKIX_TA = 0
+        PKIX_EE = 1
+        DANE_TA = 2
+        DANE_EE = 3
+    class Select(Enum):
+        CERT = 0
+        SPKI = 1
+    class Match(Enum):
+        FULL = 0
+        SHA256 = 1
+        SHA512 = 2
+
+
+def TLSA_flag_sequence_validator(i: int) -> int:
+    VALID_SEQUENCES = (201, 202, 301, 302, 311)
+    DISCOURAGED_SEQUENCES = (200, 210, 211, 212)
+    if i in DISCOURAGED_SEQUENCES:
+        raise NotImplementedError(f'TLSA flag sequence "{i}" is not recommended for DANE-TA, per RFC 7671 sec5.2.1, thus not handled')
+    if i not in VALID_SEQUENCES:
+        raise NotImplementedError(f'TLSA flag sequence "{i}" is not handled -- should be one of {{{VALID_SEQUENCES}}}')
+    return i
+
+
 def DANETLS_protocol_to_str(protocol):
     if protocol not in DANETLSAprotocols:
         raise ValueError("Unknown protocol/method set")
@@ -155,40 +182,67 @@ class DANETLSA(object):
         return d
 
 
-    def x509_not_valid_after(self):
+    def x509_not_valid_after(self) -> str:
         return funcs.x509_not_valid_after(self.cert)
 
-    def x509_not_valid_before(self):
+    def x509_not_valid_before(self) -> str:
         return funcs.x509_not_valid_before(self.cert)
 
-    def pubkey_hex(self):
+    def pubkey_hex(self) -> str:
         return funcs.x509_to_pubkey_key(self.cert)
+
+    def cert_hex_hash(self, digest_type: TLSAflags.Match) -> str:
+        return funcs.x509_to_digest(self.cert_der, tlsa_match_type=digest_type.value)
 
     def subject_dn(self):
         return funcs.x509_to_subject_dn(self.cert)
 
-    def tlsa_rdata_3_1_1(self):
+    def tlsa_rdata_x_0_x(self, usage_type: TLSAflags.Usage, match_type: TLSAflags.Match) -> str:
+        try:
+            return f"{usage_type.value} 0 {match_type.value} {self.cert_hex_hash(match_type)}"
+        except:
+
+
+    def tlsa_rdata_3_1_1(self) -> str:
         return "3 1 1 " + self.pubkey_hex()
 
-    def tlsa_rr_name_host(self):
+    def tlsa_rr_name_host(self) -> str:
         return "_" + str(self.port) + "." + \
                "_" + self.transport_proto + "." + \
                self.host
 
-    def tlsa_rr_name_fqdn(self):
+    def tlsa_rr_name_fqdn(self) -> str:
         return "_" + str(self.port) + "." + \
                "_" + self.transport_proto + "." + \
                self.fqdn + "."
 
-    def tlsa_rr(self):
+    def tlsa_rr(self, flag_sequence: int = 311) -> str:
+        flag_sequence = TLSA_flag_sequence_validator(flag_sequence)
+        if flag_sequence == 311:
+            rdata = self.tlsa_rdata_3_1_1()
+        elif flag_sequence in (201, 202, 301, 302):
+            rdata = self.tlsa_rdata_x_0_x(
+                usage_type=TLSAflags.Usage([*f'{flag_sequence}'][0]),
+                match_type=TLSAflags.Match([*f'{flag_sequence}'][2]))
+        else:
+            raise ValueError("Invalid flag sequence")
         return self.tlsa_rr_name_host() + \
-               " IN TLSA " + \
-               self.tlsa_rdata_3_1_1()
+            " IN TLSA " + \
+            rdata
 
-    def tlsa_rr_fqdn(self):
+    def tlsa_rr_fqdn(self, flag_sequence: int = 311) -> str:
+        flag_sequence = TLSA_flag_sequence_validator(flag_sequence)
+        if flag_sequence == 311:
+            rdata = self.tlsa_rdata_3_1_1()
+        elif flag_sequence in (201, 202, 301, 302):
+            rdata = self.tlsa_rdata_x_0_x(
+                usage_type=TLSAflags.Usage([*f'{flag_sequence}'][0]),
+                match_type=TLSAflags.Match([*f'{flag_sequence}'][2]))
+        else:
+            raise ValueError("Invalid flag sequence")
         return self.tlsa_rr_name_fqdn() + \
-               " IN TLSA " + \
-               self.tlsa_rdata_3_1_1()
+            " IN TLSA " + \
+            rdata
 
     def connect(self):
         if self.app_protocol == DANETLSAprotocols.DANETLSA_TLS:

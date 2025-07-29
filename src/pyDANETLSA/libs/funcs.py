@@ -12,7 +12,7 @@ import ssl
 #from cryptography.hazmat.primitives import hashes, serialization
 
 
-def x509_to_subject_dn(cert):
+def x509_to_subject_dn(cert: crypto.X509) -> str:
     """
     Output in OpenSSL format
     """
@@ -23,24 +23,33 @@ def x509_to_subject_dn(cert):
     return s
 
 
-def x509_to_pubkey_key(cert):
+def x509_to_pubkey_key(cert: crypto.X509) -> str:
     pubkey = crypto.dump_publickey(crypto.FILETYPE_ASN1, cert.get_pubkey())
     m = hashlib.sha256()
     m.update(pubkey)
     m.digest()
     return m.hexdigest()
 
-def time_left_on_certificate(cert):
+def x509_to_digest(cert: crypto.X509 | bytes, tlsa_match_type: int = 1) -> str:
+    if tlsa_match_type not in (1, 2):
+        # [RFC 6698 sec2.1.3] TLSA digest match type must be 1 (SHA256) or 2 (SHA512)
+        tlsa_match_type = 1
+    certbytes = cert if cert.__class__ is bytes else crypto.dump_certificate(crypto.FILETYPE_ASN1, cert)
+    m = hashlib.sha512() if digest_type == 2 else hashlib.sha256()
+    m.update(pubkey)
+    return m.hexdigest()
+
+def time_left_on_certificate(cert: crypto.X509) -> datetime.timedelta:
     dt = datetime.datetime.strptime(cert.get_notAfter().decode("utf-8"), '%Y%m%d%H%M%SZ')
     now = datetime.datetime.now()
     delta = dt - now
     return delta
 
-def x509_not_valid_after(cert):
+def x509_not_valid_after(cert: crypto.X509) -> str:
     dt = datetime.datetime.strptime(cert.get_notAfter().decode("utf-8"), '%Y%m%d%H%M%SZ')
     return dt.isoformat()
 
-def x509_not_valid_before(cert):
+def x509_not_valid_before(cert: crypto.X509) -> str:
     dt = datetime.datetime.strptime(cert.get_notBefore().decode("utf-8"), '%Y%m%d%H%M%SZ')
     return dt.isoformat()
 
